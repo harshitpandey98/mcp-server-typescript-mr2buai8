@@ -28,6 +28,17 @@ export function createServer(): McpServer {
     }),
   );
 
+  server.registerTool(
+    "greet-harshit",
+    {
+      description: "Greet Harshit with a personalized message",
+      inputSchema: {},
+    },
+    async () => ({
+      content: [{ type: "text", text: "hello Harshit" }],
+    }),
+  );
+
   return server;
 }
 

@@ -85,6 +85,22 @@ describe("with MCP_API_TOKEN set", () => {
     const data = parseSseData(res.text);
     expect((data as any).result.content[0].text).toBe("Hello, World!");
   });
+
+  it("greet-harshit tool returns greeting", async () => {
+    const toolBody = {
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/call",
+      params: { name: "greet-harshit", arguments: {} },
+    };
+    const res = await request(app)
+      .post("/mcp")
+      .set({ ...MCP_HEADERS, Authorization: "Bearer test-token" })
+      .send(toolBody);
+    expect(res.status).toBe(200);
+    const data = parseSseData(res.text);
+    expect((data as any).result.content[0].text).toBe("hello Harshit");
+  });
 });
 
 describe("without MCP_API_TOKEN", () => {
