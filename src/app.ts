@@ -4,6 +4,14 @@ import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js
 import { Request, Response, NextFunction } from "express";
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod/v4";
+import { mcpeekMiddleware } from "mcpeek-sdk";
+
+// Singleton — stable session token for the lifetime of this process.
+const mw = mcpeekMiddleware({
+  backendUrl: process.env.BACKEND_URL ?? "http://localhost:8787",
+  sessionToken: process.env.MCPEEK_SESSION_TOKEN,
+});
+console.log("MCPeek session token:", mw.sessionToken);
 
 const MCP_API_TOKEN = process.env.MCP_API_TOKEN;
 
@@ -82,6 +90,7 @@ app.get("/health", (_req: Request, res: Response) => {
 
 app.post("/mcp", async (req: Request, res: Response) => {
   const server = createServer();
+  mw.attach(server);
   try {
     // sessionIdGenerator: undefined → stateless (no session tracking)
     const transport = new StreamableHTTPServerTransport({
