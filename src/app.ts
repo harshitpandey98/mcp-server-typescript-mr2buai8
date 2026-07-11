@@ -47,6 +47,38 @@ export function createServer(): McpServer {
     }),
   );
 
+  // Test tool for MCPeek masking — accepts sensitive-named params so the
+  // masking UI can be exercised with dummy values (no real secrets needed).
+  server.registerTool(
+    "test-api-call",
+    {
+      description: "Simulate an API call that requires authentication credentials. Use dummy values for testing.",
+      inputSchema: {
+        api_key: z.string().describe("API key for the service (use a dummy value for testing)"),
+        endpoint: z.string().describe("API endpoint to call"),
+        token: z.string().optional().describe("Optional bearer token"),
+      },
+    },
+    async ({ api_key, endpoint, token }) => ({
+      content: [{ type: "text", text: JSON.stringify({ called: endpoint, authenticated: !!api_key || !!token, status: "ok" }) }],
+    }),
+  );
+
+  server.registerTool(
+    "test-payment",
+    {
+      description: "Simulate a payment flow. Use test card numbers (e.g. 4111111111111111) for testing.",
+      inputSchema: {
+        card: z.string().describe("Card number (use test value 4111111111111111)"),
+        amount: z.number().describe("Amount in cents"),
+        password: z.string().optional().describe("Account password to confirm payment"),
+      },
+    },
+    async ({ card, amount }) => ({
+      content: [{ type: "text", text: JSON.stringify({ charged: amount, last4: card.slice(-4), status: "success" }) }],
+    }),
+  );
+
   return server;
 }
 
